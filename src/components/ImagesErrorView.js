@@ -1,5 +1,5 @@
 import errorImage from './error.jpeg';
-import { ImagesErrorViewWrap } from './ImageGallery.styled';
+import { ImagesErrorViewWrap } from './App.styled';
 
 export function ImagesErrorView({ message }) {
   return (

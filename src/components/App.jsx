@@ -5,7 +5,10 @@ import { Searchbar } from "./Searchbar";
 import { ImageGallery } from "./ImageGallery";
 import { Button } from "./Button";
 import { Modal } from "./Modal";
-import { AppWrap } from "./App.styled";
+import { AppWrap, IdleStatus, NoImageWrap } from "./App.styled";
+import { ImagesErrorView } from "./ImagesErrorView";
+import { ImagesPendingView } from "./ImagesPendingView";
+import noImage from "./no_image.jpeg";
 
 export class App extends Component {
   state = {
@@ -21,7 +24,10 @@ export class App extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.query !== this.state.query) {
+    if (
+      prevState.query !== this.state.query ||
+      prevState.page !== this.state.page
+    ) {
       this.setState({ status: "pending" });
       this.getImages();
     }
@@ -47,7 +53,6 @@ export class App extends Component {
 
   onLoadMore = async () => {
     await this.setState((prevState) => ({ page: prevState.page + 1 }));
-    this.getImages();
   };
 
   openModal = (largeImageURL, tags) => {
@@ -69,31 +74,32 @@ export class App extends Component {
   };
 
   render() {
-    const {
-      images,
-      error,
-      status,
-      selectedImageUrl,
-      page,
-      totalHits,
-      tags,
-    } = this.state;
+    const { images, error, status, selectedImageUrl, page, totalHits, tags } =
+      this.state;
     let isBtnLoadMore = false;
     let countPages = Math.ceil(totalHits / 12);
 
     if (totalHits && images.length && page < countPages) {
       isBtnLoadMore = true;
     }
-    
+
     return (
       <AppWrap>
         <Searchbar onSubmit={this.onSubmitForm} />
-        <ImageGallery
-          images={images}
-          status={status}
-          error={error}
-          openModal={this.openModal}
-        />
+        {status === "idle" && (
+          <IdleStatus>
+            There are no images here yet...
+            <NoImageWrap src={noImage} width="240" alt="saddog" />
+          </IdleStatus>
+        )}
+        {status === "pending" && <ImagesPendingView />}
+
+        {status === "rejected" && <ImagesErrorView message={error.message} />}
+
+        {(status === "resolved" && images.length !== 0) && (
+          <ImageGallery images={images} openModal={this.openModal} />
+        )}
+
         {isBtnLoadMore && (
           <Button
             page={page}
