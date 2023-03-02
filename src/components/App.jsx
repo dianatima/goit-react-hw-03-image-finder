@@ -30,6 +30,7 @@ export class App extends Component {
     ) {
       this.setState({ status: "pending" });
       this.getImages();
+      this.setState({ status: "resolved" });
     }
   }
 
@@ -43,7 +44,6 @@ export class App extends Component {
           return {
             images: [...images, ...res.hits],
             totalHits: res.totalHits,
-            status: "resolved",
           };
         })
       )
